@@ -1,0 +1,16 @@
+{
+  "name": "yokai-bot",
+  "version": "1.0.0",
+  "description": "Yokai bot New World",
+  "main": "main.js",
+  "scripts": {},
+  "author": "Reyko",
+  "license": "MIT",
+  "dependencies": {
+    "discord.js": "^12.5.3",
+    "moment": "^2.29.1"
+  },
+  "devDependencies": {
+    "eslint": "^7.32.0"
+  }
+}

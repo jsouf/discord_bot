@@ -1,0 +1,31 @@
+{
+    "prefix": "!",
+    "token": "",
+    "messageSlowModeInterval": 3,
+    "messageDeletionInterval": 3,
+    "officers": {
+        "idRole": ""
+    },
+    "categories": {
+        "events": ""
+    },
+    "channels": {
+        "roles": "",
+        "config": "",
+        "roster": ""
+    },
+    "roles": {
+        "tank": {
+            "id": "",
+            "idEmoji": ""
+        },
+        "heal": {
+            "id": "",
+            "idEmoji": ""
+        },
+        "dps": {
+            "id": "",
+            "idEmoji": ""
+        }
+    }
+}

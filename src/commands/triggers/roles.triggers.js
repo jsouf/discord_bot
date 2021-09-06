@@ -1,4 +1,4 @@
-const { MessageEmbed, MessageFlags } = require('discord.js');
+const { MessageEmbed } = require('discord.js');
 const { channels, roles } = require('../../../config.json');
 
 async function handle(client) {

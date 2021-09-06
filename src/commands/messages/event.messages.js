@@ -1,12 +1,12 @@
 const { MessageEmbed } = require('discord.js');
-const { service } = require('../../services/service');
-const { categories, channels, messageDeletionInterval, messageSlowModeInterval, prefix } = require('../../../config.json');
 const moment = require('moment');
+const { categories, channels, messageDeletionInterval, messageSlowModeInterval, prefix } = require('../../../config.json');
+const territories = require('../../enums/territories.enums');
 
 moment.locale('fr');
 const formatDate = 'DD/MM/YYYY HH:mm';
 
-async function handle(message, args) {
+async function handle(message, args) { 
     const isConfigChannel = message.channel.id === channels.config;
 
     if (isConfigChannel) {
@@ -78,11 +78,7 @@ async function parseArguments(args) {
                 errors.push(`Il manque les arguments suivants : ${errorsCommandLine.join(', ')}`);
             }
             else {
-                const promiseTerritory = service.territories.getByAlias(warLocationArgument);
-                const territory = await promiseTerritory
-                    .then((data) => { return data; })
-                    .catch((error) => { console.error(error); });
-
+                const territory = territories.find(t => t.alias === warLocationArgument.trim().toLowerCase());
                 if (!territory) {
                     errors.push(`L'alias du territoire ${warLocationArgument} n'existe pas ! Type !territories pour afficher la liste des territoires`);
                 }

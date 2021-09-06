@@ -1,6 +1,6 @@
 const { MessageEmbed } = require('discord.js');
 const { channels, messageDeletionInterval } = require('../../../config.json');
-const { service } = require('../../services/service');
+const territories = require('../../enums/territories.enums');
 
 async function handle(message) {
     const isConfigChannel = message.channel.id === channels.config;
@@ -16,11 +16,6 @@ async function handle(message) {
 };
 
 async function showTerritories(message) {
-    const promise = service.territories.getAll();
-    const territories = await promise
-        .then((data) => { return data; })
-        .catch(console.error);
-
     let fieldValue = '\n \u200B';
 
     if (territories && territories.length > 0) {

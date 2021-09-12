@@ -3,15 +3,17 @@ const { categories, messageDeletionInterval, officers, roles, prefix } = require
 async function handle(message, args, command, client) {
 	const isEventsChannel = message.channel.parentID === categories.events;
 	const isOfficer = message.member.roles.cache.has(officers.idRole);
+	let isValidCommand = false;
 
 	if (isEventsChannel) {
-		if (isOfficer) {
-			if (args.length > 0) {
-				let currentArg = args[0];
-				if (currentArg.length > 0) {
-					await movePlayerInWar(message, currentArg, client);
-				}
+		if (isOfficer && args.length > 0) {
+			let currentArg = args[0];
+			if (currentArg.length > 0) {
+				isValidCommand = await movePlayerInEvent(message, currentArg, client);
 			}
+		}
+
+		if (isValidCommand) {
 			message.react('✅');
 		}
 		else {
@@ -24,16 +26,20 @@ async function handle(message, args, command, client) {
 	}
 };
 
-async function movePlayerInWar(message, currentArg, client) {
-	if (!isNaN(currentArg) && currentArg >= 1 && currentArg <= 10) {
+async function movePlayerInEvent(message, currentArg, client) {
+	const numberGroup = parseInt(currentArg);
+	const isValidCommand = !isNaN(numberGroup) && numberGroup >= 1 && numberGroup <= 10;
+	
+	if (isValidCommand) {
 		const mentionsMembers = message.mentions.members;
 		if (mentionsMembers && mentionsMembers.size === 1) {
 			const member = mentionsMembers.entries().next().value[1];
 			if (member && member.user && !member.user.bot) {
-				const indexGroup = currentArg - 1;
+				const indexGroup = numberGroup - 1;
 				const channel = message.channel;
 				const idBot = client.user.id;
-				const messageInscription = (await channel.messages.fetch()).find(msg => msg.author.id === idBot);
+				const messages = await channel.messages.fetch();
+				const messageInscription = messages.find(msg => msg.author.id === idBot);
 				const messageInscriptionEmbed = messageInscription.embeds[0];
 				let groups = messageInscriptionEmbed.fields;
 				let group = groups[indexGroup];
@@ -48,6 +54,8 @@ async function movePlayerInWar(message, currentArg, client) {
 			}
 		}
 	}
+
+	return isValidCommand;
 }
 
 async function addPlayerToGroup(group, member) {

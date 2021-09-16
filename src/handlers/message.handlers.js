@@ -30,10 +30,6 @@ const handle = async (client, message) => {
 	}
 	catch {
 		console.error;
-		message.react('❌');
-		setTimeout(() => {
-			message.delete();
-		}, messageDeletionInterval * 1000);
 	}
 };
 

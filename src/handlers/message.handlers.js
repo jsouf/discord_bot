@@ -1,8 +1,8 @@
-const { categories, messageDeletionInterval, officers, prefix } = require('../../config.json');
+const { categories, channels, messageDeletionInterval, officers, prefix } = require('../../config.json');
 
 const handle = async (client, message) => {
 	try {
-		if (message.author.bot) { return; }
+		if (shouldIgnoreMessage(message)) { return; }
 
 		const managedCategories = Object.entries(categories).map(element => element[1]);
 		const categoryId = message.channel.parent.id;
@@ -31,6 +31,18 @@ const handle = async (client, message) => {
 	catch {
 		console.error;
 	}
+};
+
+const shouldIgnoreMessage = (message) => {
+	if(message.author.bot) { return true; }
+
+	const trackedIdChannels = Object.entries(channels).map(element => element[1]);
+	if(trackedIdChannels.includes(message.channel.id)) { return false; }
+	
+	const trackedIdCategory = Object.entries(categories).map(element => element[1]);
+	if(trackedIdCategory.includes(message.channel.parent.id)) { return false; }
+
+	return true;
 };
 
 module.exports = handle;

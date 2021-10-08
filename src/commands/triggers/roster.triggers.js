@@ -55,7 +55,7 @@ async function showPlayersByRole(channel) {
                     if (iterationMember === 5) {
                         fields.push({ name: '_', value: !firstFieldExist ? roleValue + fieldValue : fieldValue, inline: firstFieldExist });
                         firstFieldExist = true;
-                        iterationMember = 0;
+                        iterationMember = 1;
                         fieldValue = '';
                     }
                     iterationMember++;

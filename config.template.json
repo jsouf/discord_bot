@@ -27,5 +27,18 @@
             "id": "",
             "idEmoji": ""
         }
+    },
+    "weapons": {
+        "bow": "",
+        "firestaff": "",
+        "greataxe": "",
+        "hatchet": "",
+        "icegauntlet": "",
+        "lifestaff": "",
+        "musket": "",
+        "rapier": "",
+        "spear": "",
+        "sword": "",
+        "warhammer": ""
     }
 }

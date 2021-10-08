@@ -44,8 +44,8 @@ async function showPlayersByRole(channel) {
         let roleDiscord = await channel.guild.roles.fetch(role.id);
         if (roleDiscord) {
             if (roleDiscord.members && roleDiscord.members.size > 0) {
-                const members = roleDiscord.members.sort();
-                let iterationMember = 0;
+                const members = roleDiscord.members.sort((a, b) => (a.displayName > b.displayName) ? 1 : -1);
+                let iterationMember = 1;
                 let roleValue = `\n \u200B \n ${roleDiscord} \n\n`;
                 let firstFieldExist = false;
                 let fieldValue = '';

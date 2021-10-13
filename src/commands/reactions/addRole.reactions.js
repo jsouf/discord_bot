@@ -7,19 +7,18 @@ async function handle(client, messageReaction, user) {
 
     const isRoleChannel = message.channel.id === channels.roles;
     if (isRoleChannel) {
-        const emoji = messageReaction.emoji.id;
+        const idEmoji = messageReaction.emoji.id;
         let managedRoles = [];
         for(const role of Object.keys(roles)) {
             managedRoles.push(roles[role]);
         }
 
-        const role = managedRoles.find(role => role.idEmoji === emoji);
+        const role = managedRoles.find(role => role.idEmoji === idEmoji);
         if(role){
             await member.roles.add(role.id);
+            const rosterTrigger = client.triggers.get('roster');
+            await rosterTrigger.handle(client);
         }
-
-        const rosterTrigger = client.triggers.get('roster');
-        await rosterTrigger.handle(client);
     }
 }
 

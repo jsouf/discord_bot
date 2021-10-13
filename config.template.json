@@ -12,7 +12,8 @@
     "channels": {
         "roles": "",
         "config": "",
-        "roster": ""
+        "roster": "",
+        "weapons": ""
     },
     "roles": {
         "tank": {

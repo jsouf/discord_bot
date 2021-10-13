@@ -1,4 +1,5 @@
-const { categories, messageDeletionInterval, roles, prefix } = require('../../../config.json');
+const { categories, channels, messageDeletionInterval, roles, prefix } = require('../../../config.json');
+const { titleMessageWeapons } = require('../triggers/weapons.triggers').command;
 
 async function handle(message, args, command, client) {
 	const isEventsChannel = message.channel.parentID === categories.events;
@@ -31,19 +32,50 @@ async function joinWarGroup(message, currentArg, client) {
 		const groupHasFreeSlot = group.value.includes('libre');
 		if (groupHasFreeSlot) {
 			groups = await removePlayerFromGroups(message, groups);
-			group = await addPlayerToGroup(message, group);
+			group = await addPlayerToGroup(client, message, group);
 			messageInscriptionEmbed.spliceFields(0, groups.length, groups);
 			messageInscription.edit(messageInscriptionEmbed);
 		}
 	}
 }
 
-async function addPlayerToGroup(message, group) {
+async function addPlayerToGroup(client, message, group) {
 	let groupValues = group.value.split(/\r?\n/);
 	let indexFreeSlot = groupValues.findIndex(value => value.trim().toLowerCase() === 'libre');
 	if (indexFreeSlot > -1) {
 		let playerRoles = await getPlayerRoles(message);
-		groupValues[indexFreeSlot] = `<@${message.author.id}> - ${playerRoles.map(role => `${role}`).join(' ')}`;
+		let messageWeaponsReactions;
+		const idBot = client.user.id;
+		const predicateIsMessageWeapons = msg => {
+			const isBot = msg.author.id === idBot;
+			const embed = msg.embeds ? msg.embeds[0] : '';
+			return isBot && embed && embed.title.length > 0 && embed.title.trim() === titleMessageWeapons;
+		};
+		const channelWeapons = await client.channels.fetch(channels.weapons);
+		const messageWeapons = (await channelWeapons.messages.fetch()).find(predicateIsMessageWeapons);
+		if(messageWeapons) {
+			messageWeaponsReactions = Array.from(messageWeapons.reactions.cache);
+		}
+		let reactionsWeaponsMember = [];
+		if(messageWeaponsReactions) {
+			try {
+				for(const weaponReaction of messageWeaponsReactions) {
+					let users = await weaponReaction[1].users.fetch();
+					if(users) {
+						users = Array.from(users);
+						if(users.find(user => !user[1].bot && user[1].id === message.author.id)) {
+							reactionsWeaponsMember.push(weaponReaction[1].emoji);
+						}
+					}
+				}
+			}
+			catch { 
+				console.error; 
+			}
+		}
+		const weaponsMember = reactionsWeaponsMember.length > 0 ? reactionsWeaponsMember.join(' ') : ' ';
+
+		groupValues[indexFreeSlot] = `${weaponsMember} <@${message.author.id}> - ${playerRoles.map(role => `${role}`).join(' ')}`;
 	}
 
 	group.value = groupValues.join('\n');

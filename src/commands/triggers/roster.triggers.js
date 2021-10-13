@@ -1,5 +1,6 @@
 const { MessageEmbed } = require('discord.js');
 const { channels, roles } = require('../../../config.json');
+const { titleMessageWeapons } = require('./weapons.triggers').command;
 
 const titleMessageEmbed = 'Roster';
 
@@ -22,7 +23,7 @@ async function updateOrCreateMessageRoster(client, channel) {
             messageRosterEmbed = messageRoster.embeds[0];
         }
 
-        const messageEmbed = await showPlayersByRole(channel);
+        const messageEmbed = await showPlayersByRole(client, channel);
 
         if (messageRosterEmbed && messageRosterEmbed.length > 0) {
             messageRoster.edit(messageEmbed);
@@ -33,15 +34,27 @@ async function updateOrCreateMessageRoster(client, channel) {
     }
 }
 
-async function showPlayersByRole(channel) {
+async function showPlayersByRole(client, channel) {
     let fields = [];
     let messageEmbed = new MessageEmbed()
         .setColor('#202225')
         .setTitle(titleMessageEmbed);
 
+    let messageWeaponsReactions;
+    const idBot = client.user.id;
+    const predicateIsMessageWeapons = msg => {
+        const isBot = msg.author.id === idBot;
+        const embed = msg.embeds ? msg.embeds[0] : '';
+        return isBot && embed && embed.title.length > 0 && embed.title.trim() === titleMessageWeapons;
+    };
+    const messageWeapons = (await channel.messages.fetch()).find(predicateIsMessageWeapons);
+    if(messageWeapons) {
+        messageWeaponsReactions = Array.from(messageWeapons.reactions.cache);
+    }
+
     for (const key of Object.keys(roles)) {
         const role = roles[key];
-        let roleDiscord = await channel.guild.roles.fetch(role.id);
+        const roleDiscord = await channel.guild.roles.fetch(role.id);
         if (roleDiscord) {
             if (roleDiscord.members && roleDiscord.members.size > 0) {
                 const members = roleDiscord.members.sort((a, b) => (a.displayName > b.displayName) ? 1 : -1);
@@ -51,7 +64,25 @@ async function showPlayersByRole(channel) {
                 let fieldValue = '';
 
                 for (const member of members) {
-                    fieldValue += `<@${member[0]}>\n`;
+                    let reactionsWeaponsMember = [];
+                    if(messageWeaponsReactions) {
+                        try {
+                            for(const weaponReaction of messageWeaponsReactions) {
+                                let users = await weaponReaction[1].users.fetch();
+                                if(users) {
+                                    users = Array.from(users);
+                                    if(users.find(user => !user[1].bot && user[1].id === member[0])) {
+                                        reactionsWeaponsMember.push(weaponReaction[1].emoji);
+                                    }
+                                }
+                            }
+                        }
+                        catch { 
+                            console.error; 
+                        }
+                    }
+                    const weaponsMember = reactionsWeaponsMember.length > 0 ? reactionsWeaponsMember.join(' ') : ' ';
+                    fieldValue += `${weaponsMember} <@${member[0]}>\n`;
                     if (iterationMember === 5) {
                         fields.push({ name: '_', value: !firstFieldExist ? roleValue + fieldValue : fieldValue, inline: firstFieldExist });
                         firstFieldExist = true;
@@ -66,7 +97,7 @@ async function showPlayersByRole(channel) {
                 }
             }
             else {
-                fields.push({ name: `${roleDiscord}`, value: 'aucun joueur' });
+                fields.push({ name: `${roleDiscord.name}`, value: 'aucun joueur' });
             }
         }
     }

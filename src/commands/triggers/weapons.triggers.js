@@ -1,49 +1,47 @@
 const { MessageEmbed } = require('discord.js');
-const { channels, roles } = require('../../../config.json');
+const { channels, weapons } = require('../../../config.json');
+
+const titleMessageEmbed = 'Assigner des armes';
 
 async function handle(client) {
-	const channel = client.channels.cache.get(channels.roles);
-	await updateOrCreateMessageRoles(client, channel);
+	const channel = client.channels.cache.get(channels.weapons);
+	await updateOrCreateMessageWeapons(client, channel);
 }
 
-async function updateOrCreateMessageRoles(client, channel) {
+async function updateOrCreateMessageWeapons(client, channel) {
 	if (channel) {
 		const idBot = client.user.id;
-		const titleMessageEmbed = 'Obtenir un rôle';
-		const predicateIsMessageRole = msg => { 
+		const predicateIsMessageWeapon = msg => { 
 			const isBot = msg.author.id === idBot;
 			const embed = msg.embeds ? msg.embeds[0] : '';
 			return isBot && embed && embed.title.length > 0 && embed.title.trim() === titleMessageEmbed;
-		}
-		const messageRoster = (await channel.messages.fetch()).find(predicateIsMessageRole);
+		};
+		const messageWeapon = (await channel.messages.fetch()).find(predicateIsMessageWeapon);
 
-		if (!messageRoster) {
+		if (!messageWeapon) {
 			let emojis = [];
 			let fieldValue = '\u200B \n ';
 
-			for (const key of Object.keys(roles)) {
-				const idRole = roles[key].id;
-				const idEmoji = roles[key].idEmoji;
-				const role = channel.guild.roles.cache.get(idRole);
-				const emoji = channel.guild.emojis.cache.get(idEmoji);
-				if (role && emoji) {
-					fieldValue += `${emoji} - ${role} \n \u200B \n `;
-					emojis.push(emoji);
+			for (const [key, value] of Object.entries(weapons)) {
+				const weapon = channel.guild.emojis.cache.get(value);
+				if (weapon) {
+					fieldValue += `${weapon} - ${key} \n \u200B \n `;
+					emojis.push(weapon);
 				}
 			}
 
 			if (emojis.length > 0) {
-				const rolesChannel = channel.guild.channels.cache.get(channels.roles);
+				const weaponsChannel = channel.guild.channels.cache.get(channels.weapons);
 				const messageEmbed = new MessageEmbed()
 					.setColor('#202225')
 					.setTitle(titleMessageEmbed)
-					.setDescription('Cliquez sur une des réactions ci-dessous pour obtenir le rôle correspondant !')
+					.setDescription('Cliquez sur une des réactions ci-dessous pour vous assigner une arme !')
 					.addField(
-						'Liste des rôles :',
+						'Liste des armes :',
 						fieldValue
 					);
 
-				await rolesChannel.send(messageEmbed).then(async msg => {
+				await weaponsChannel.send(messageEmbed).then(async msg => {
 					for (const emoji of emojis) {
 						await msg.react(emoji);
 					}
@@ -54,8 +52,9 @@ async function updateOrCreateMessageRoles(client, channel) {
 }
 
 module.exports.command = {
-	name: 'roles',
-	description: 'Crée ou met à jour la liste les joueurs pour chaque rôles configurés',
-	handle: handle
+	name: 'weapons',
+	description: 'Crée ou met à jour la liste des armes pour chaque joueur',
+	handle: handle,
+	titleMessageWeapons: titleMessageEmbed
 };
 

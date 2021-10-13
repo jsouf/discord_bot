@@ -119,9 +119,11 @@ async function parseArgument(alias, arguments) {
 
 async function getMessageEmbed(informations) {
     let fields = [];
-    
     for (i = 0; i < 10; i++) {
         fields.push({ name: `Groupe ${i + 1}`, value: 'libre\nlibre\nlibre\nlibre\nlibre', inline: true });
+        if((i + 1) % 2 === 0) { 
+            fields.push({ name: '\u200B', value: '\u200B', inline: false });
+        }
     }
 
     const warDate = informations.date.format('DD MMMM YYYY, HH:mm');

@@ -36,18 +36,17 @@ async function movePlayerInEvent(message, currentArg, client) {
 		if (mentionsMembers && mentionsMembers.size === 1) {
 			const member = mentionsMembers.entries().next().value[1];
 			if (member && member.user && !member.user.bot) {
-				const indexGroup = numberGroup - 1;
 				const idBot = client.user.id;
 				const messages = await message.channel.messages.fetch();
 				const messageInscription = messages.find(msg => msg.author.id === idBot);
 				const messageInscriptionEmbed = messageInscription.embeds[0];
 				let groups = messageInscriptionEmbed.fields;
-				let group = groups[indexGroup];
+				let group = groups.find(group => group.name.trim() === `Groupe ${currentArg}`);
 
 				const groupHasFreeSlot = group.value.includes('libre');
 				if (groupHasFreeSlot) {
 					groups = await removePlayerFromGroups(groups, member);
-					group = await addPlayerToGroup(client, message, group, member);
+					group = await addPlayerToGroup(client, group, member);
 					messageInscriptionEmbed.spliceFields(0, groups.length, groups);
 					messageInscription.edit(messageInscriptionEmbed);
 				}
@@ -58,7 +57,7 @@ async function movePlayerInEvent(message, currentArg, client) {
 	return isValidCommand;
 }
 
-async function addPlayerToGroup(client, message, group, member) {
+async function addPlayerToGroup(client, group, member) {
 	let groupValues = group.value.split(/\r?\n/);
 	let indexFreeSlot = groupValues.findIndex(value => value.trim().toLowerCase() === 'libre');
 	if (indexFreeSlot > -1) {
@@ -92,9 +91,9 @@ async function addPlayerToGroup(client, message, group, member) {
 				console.error; 
 			}
 		}
-		const weaponsMember = reactionsWeaponsMember.length > 0 ? reactionsWeaponsMember.join(' ') : ' ';
+		const weaponsMember = reactionsWeaponsMember.length > 0 ? reactionsWeaponsMember.join('\u200B') : '\u200B';
 
-		groupValues[indexFreeSlot] = `${weaponsMember} <@${member.id}> - ${playerRoles.map(role => `${role}`).join(' ')}`;
+		groupValues[indexFreeSlot] = `<@${member.id}> ${weaponsMember} - ${playerRoles.map(role => `${role}`).join('\u200B')}`;
 	}
 
 	group.value = groupValues.join('\n');

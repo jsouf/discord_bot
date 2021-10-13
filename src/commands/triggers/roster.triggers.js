@@ -48,56 +48,66 @@ async function showPlayersByRole(client, channel) {
         return isBot && embed && embed.title.length > 0 && embed.title.trim() === titleMessageWeapons;
     };
     const messageWeapons = (await channel.messages.fetch()).find(predicateIsMessageWeapons);
+    let usersWeaponsReactions = [];
     if(messageWeapons) {
         messageWeaponsReactions = Array.from(messageWeapons.reactions.cache);
+        if(messageWeaponsReactions) {
+            try {
+                for(const weaponReaction of messageWeaponsReactions) {
+                    let users = await weaponReaction[1].users.fetch();
+                    if(users) {
+                        users = Array.from(users);
+                        usersWeaponsReactions.push([weaponReaction, users]);
+                    }
+                }
+            }
+            catch { 
+                console.error; 
+            }
+        }
     }
 
     for (const key of Object.keys(roles)) {
         const role = roles[key];
         const roleDiscord = await channel.guild.roles.fetch(role.id);
+        let roleValue = `\n \u200B \n ${roleDiscord} \n\n`;
+
         if (roleDiscord) {
             if (roleDiscord.members && roleDiscord.members.size > 0) {
                 const members = roleDiscord.members.sort((a, b) => (a.displayName > b.displayName) ? 1 : -1);
                 let iterationMember = 1;
-                let roleValue = `\n \u200B \n ${roleDiscord} \n\n`;
                 let firstFieldExist = false;
                 let fieldValue = '';
 
                 for (const member of members) {
-                    let reactionsWeaponsMember = [];
-                    if(messageWeaponsReactions) {
-                        try {
-                            for(const weaponReaction of messageWeaponsReactions) {
-                                let users = await weaponReaction[1].users.fetch();
-                                if(users) {
-                                    users = Array.from(users);
-                                    if(users.find(user => !user[1].bot && user[1].id === member[0])) {
-                                        reactionsWeaponsMember.push(weaponReaction[1].emoji);
-                                    }
-                                }
-                            }
-                        }
-                        catch { 
-                            console.error; 
-                        }
+                    let emojisWeaponUser = [];
+
+                    if(usersWeaponsReactions && usersWeaponsReactions.length > 0) {
+                        usersWeaponsReactions.forEach(usersReaction => { 
+                            const userIsFound = usersReaction[1].find(user => 
+                                !user[1].bot && user[1].id === member[0]
+                            ); 
+                            if(userIsFound) { emojisWeaponUser.push(usersReaction[0][1].emoji); }
+                        });
                     }
-                    const weaponsMember = reactionsWeaponsMember.length > 0 ? reactionsWeaponsMember.join(' ') : ' ';
-                    fieldValue += `${weaponsMember} <@${member[0]}>\n`;
+                    
+                    const weaponsMember = emojisWeaponUser.length > 0 ? emojisWeaponUser.join('\u200B') : '\u200B';
+                    fieldValue += `<@${member[0]}> ${weaponsMember}\n`;
                     if (iterationMember === 5) {
-                        fields.push({ name: '_', value: !firstFieldExist ? roleValue + fieldValue : fieldValue, inline: firstFieldExist });
+                        fields.push({ name: '\u200B', value: !firstFieldExist ? `${roleValue}${fieldValue}` : fieldValue, inline: firstFieldExist });
                         firstFieldExist = true;
                         iterationMember = 1;
-                        fieldValue = '';
+                        fieldValue = '\u200B';
                     }
                     iterationMember++;
                 }
 
                 if(iterationMember < 5) {
-                    fields.push({ name: '_', value: !firstFieldExist ? roleValue + fieldValue : fieldValue });
+                    fields.push({ name: '\u200B', value: !firstFieldExist ? `${roleValue}${fieldValue}` : fieldValue });
                 }
             }
             else {
-                fields.push({ name: `${roleDiscord.name}`, value: 'aucun joueur' });
+                fields.push({ name: '\u200B', value: `${roleValue}aucun joueur\n` });
             }
         }
     }

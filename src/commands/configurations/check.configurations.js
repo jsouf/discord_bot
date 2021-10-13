@@ -122,13 +122,13 @@ async function handle(client) {
 	}
 	else {
 		const rolesTrigger = client.triggers.get('roles');
-		rolesTrigger.handle(client);
+		await rolesTrigger.handle(client);
 		
 		const weaponsTrigger = client.triggers.get('weapons');
-		weaponsTrigger.handle(client);
+		await weaponsTrigger.handle(client);
 
 		const rosterTrigger = client.triggers.get('roster');
-		rosterTrigger.handle(client);
+		await rosterTrigger.handle(client);
 	}
 };
 

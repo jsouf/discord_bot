@@ -26,8 +26,7 @@ async function joinWarGroup(message, currentArg, client) {
 		const messageInscription = (await channel.messages.fetch()).find(msg => msg.author.id === idBot);
 		const messageInscriptionEmbed = messageInscription.embeds[0];
 		let groups = messageInscriptionEmbed.fields;
-		const indexGroup = groups.findIndex(group => group.name.trim() === `Groupe ${currentArg}`);
-		let group = groups[indexGroup];
+		let group = groups.find(group => group.name.trim() === `Groupe ${currentArg}`);
 
 		const groupHasFreeSlot = group.value.includes('libre');
 		if (groupHasFreeSlot) {
@@ -75,7 +74,7 @@ async function addPlayerToGroup(client, message, group) {
 		}
 		const weaponsMember = reactionsWeaponsMember.length > 0 ? reactionsWeaponsMember.join(' ') : ' ';
 
-		groupValues[indexFreeSlot] = `${weaponsMember} <@${message.author.id}> - ${playerRoles.map(role => `${role}`).join(' ')}`;
+		groupValues[indexFreeSlot] = `<@${message.author.id}> ${weaponsMember} - ${playerRoles.map(role => `${role}`).join(' ')}`;
 	}
 
 	group.value = groupValues.join('\n');

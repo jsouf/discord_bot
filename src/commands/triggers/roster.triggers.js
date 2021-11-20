@@ -99,7 +99,9 @@ async function showPlayersByRole(client, channel) {
                         iterationMember = 1;
                         fieldValue = '\u200B';
                     }
-                    iterationMember++;
+                    else {
+                        iterationMember++;
+                    }
                 }
 
                 if(iterationMember < 5) {

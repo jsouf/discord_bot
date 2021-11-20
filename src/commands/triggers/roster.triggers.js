@@ -70,7 +70,7 @@ async function showPlayersByRole(client, channel) {
     for (const key of Object.keys(roles)) {
         const role = roles[key];
         const roleDiscord = await channel.guild.roles.fetch(role.id);
-        let roleValue = `\n \u200B \n ${roleDiscord} \n\n`;
+        let roleValue = `\n ${roleDiscord} \n\n`;
 
         if (roleDiscord) {
             if (roleDiscord.members && roleDiscord.members.size > 0) {

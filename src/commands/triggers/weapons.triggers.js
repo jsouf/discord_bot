@@ -20,12 +20,12 @@ async function updateOrCreateMessageWeapons(client, channel) {
 
 		if (!messageWeapon) {
 			let emojis = [];
-			let fieldValue = '\u200B \n ';
+			let fieldValue = '';
 
 			for (const [key, value] of Object.entries(weapons)) {
 				const weapon = channel.guild.emojis.cache.get(value);
 				if (weapon) {
-					fieldValue += `${weapon} - ${key} \n \u200B \n `;
+					fieldValue += `${weapon} - ${key} \n \u200B`;
 					emojis.push(weapon);
 				}
 			}
